@@ -1,0 +1,164 @@
+
+    //
+    //
+    //
+    //let DeckOfCards = 
+    //    [| 
+    //        for s in [Club; Diamond; Heart; Spade] do
+    //            for r in [Ace; King; Queen; Jack] do
+    //                yield {Rank = r; Suit = s}
+    //            for v in 2..10 do
+    //                yield {Rank = Value(v); Suit = s}
+    //    |] |> Array.sortBy (fun card -> 0 - SortValue (card.Rank))
+    //
+    //let Random = new Random()
+    //
+    //let Shuffle deck =
+    //    deck |> Array.sortBy (fun _ -> Random.Next())
+    //    
+    //let DealHand() = Hand(DeckOfCards |> Shuffle |> Seq.take 5 |> Array.ofSeq)
+
+//    let isRoyal = 
+//            Hand([|
+//                      {Rank=Ace; Suit=Spade}
+//                      {Rank=King; Suit=Spade}
+//                      {Rank=Queen; Suit=Spade}
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                 |])
+//    let isNotRoyal =
+//            Hand([|
+//                      {Rank=Ace; Suit=Spade}
+//                      {Rank=King; Suit=Spade}
+//                      {Rank=Queen; Suit=Diamond}
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                 |])
+//    let isStraight = 
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Spade}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isNotStraight =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isFour = 
+//            Hand([|
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(10); Suit=Diamond}
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Club}
+//                      {Rank=Value(10); Suit=Heart}
+//                 |])
+//    let isNotFour =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isFullHouse = 
+//            Hand([|
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(10); Suit=Diamond}
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Club}
+//                      {Rank=Jack; Suit=Heart}
+//                 |])
+//    let isNotFullHouse =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isFlush = 
+//            Hand([|
+//                      {Rank=Ace; Suit=Heart}
+//                      {Rank=Jack; Suit=Heart}
+//                      {Rank=Value(9); Suit=Heart}
+//                      {Rank=Value(6); Suit=Heart}
+//                      {Rank=Value(3); Suit=Heart}
+//                 |])
+//    let isNotFlush =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isStraight = 
+//            Hand([|
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                      {Rank=Value(6); Suit=Diamond}
+//                      {Rank=Value(5); Suit=Club}
+//                 |])
+//    let isNotStraight =
+//            Hand([|
+//                      {Rank=Queen; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isThree = 
+//            Hand([|
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(10); Suit=Diamond}
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Club}
+//                      {Rank=Value(9); Suit=Heart}
+//                 |])
+//    let isNotThree =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isTwoPair = 
+//            Hand([|
+//                      {Rank=Ace; Suit=Club}
+//                      {Rank=Ace; Suit=Diamond}
+//                      {Rank=King; Suit=Heart}
+//                      {Rank=King; Suit=Diamond}
+//                      {Rank=Value(4); Suit=Spade}
+//                 |])
+//    let isNotTwoPair =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
+//    let isOnePair = 
+//            Hand([|
+//                      {Rank=Ace; Suit=Club}
+//                      {Rank=Ace; Suit=Diamond}
+//                      {Rank=King; Suit=Heart}
+//                      {Rank=Value(5); Suit=Diamond}
+//                      {Rank=Value(4); Suit=Spade}
+//                 |])
+//    let isNotOnePair =
+//            Hand([|
+//                      {Rank=Jack; Suit=Spade}
+//                      {Rank=Value(10); Suit=Spade}
+//                      {Rank=Value(9); Suit=Spade}
+//                      {Rank=Value(8); Suit=Diamond}
+//                      {Rank=Value(7); Suit=Spade}
+//                 |])
