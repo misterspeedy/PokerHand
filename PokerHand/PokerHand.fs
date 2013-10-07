@@ -146,63 +146,63 @@ module PokerHand =
     // Partial active patterns for each of the recognized Poker hands.  These need to be
     // matched in order as some of the later cases will otherwise have false hits.
 
-    let (|RoyalFlush|_|) (cards : Card[]) =
-        if (cards.[0].Rank) = Ace && (Consecutive cards) && (SameSuit cards) then
+    let (|RoyalFlush|_|) (hand : Hand) =
+        if (hand.Cards.[0].Rank) = Ace && (Consecutive hand.Cards) && (SameSuit hand.Cards) then
             RoyalFlush |> Some
         else
             None
 
-    let (|StraightFlush|_|) cards =
-        if (SameSuit cards) && (Consecutive cards) then
+    let (|StraightFlush|_|) (hand : Hand) =
+        if (SameSuit hand.Cards) && (Consecutive hand.Cards) then
             StraightFlush |> Some
         else
             None
         
-    let (|FourOfAKind|_|) cards =
-        if (RankCounts cards).[0] = 4 then
+    let (|FourOfAKind|_|) (hand : Hand) =
+        if (RankCounts hand.Cards).[0] = 4 then
             FourOfAKind |> Some
         else
             None
 
-    let (|FullHouse|_|) cards =
-        if (RankCounts cards) = [|3; 2|] then
+    let (|FullHouse|_|) (hand : Hand) =
+        if (RankCounts hand.Cards) = [|3; 2|] then
             FullHouse |> Some
         else
             None
 
-    let (|Flush|_|) cards =
-        if (SuitCounts cards) = [|5|] then
+    let (|Flush|_|) (hand : Hand) =
+        if (SuitCounts hand.Cards) = [|5|] then
             Flush |> Some
         else
             None
 
-    let (|Straight|_|) cards =
-        if (Consecutive cards) then
+    let (|Straight|_|) (hand : Hand) =
+        if (Consecutive hand.Cards) then
             Straight |> Some
         else
             None
 
-    let (|ThreeOfAKind|_|) cards =
-        if (RankCounts cards).[0] = 3 then
+    let (|ThreeOfAKind|_|) (hand : Hand) =
+        if (RankCounts hand.Cards).[0] = 3 then
             ThreeOfAKind |> Some
         else
             None
 
-    let (|TwoPair|_|) cards =
-        if (RankCounts cards).[0..1] = [|2; 2|] then
+    let (|TwoPair|_|) (hand : Hand) =
+        if (RankCounts hand.Cards).[0..1] = [|2; 2|] then
             TwoPair |> Some
         else
             None
 
-    let (|OnePair|_|) cards =
-        if (RankCounts cards).[0] = 2 then
+    let (|OnePair|_|) (hand : Hand) =
+        if (RankCounts hand.Cards).[0] = 2 then
             OnePair |> Some
         else
             None
 
     /// Get the name of a hand type.
     let HandTypeName (hand : Hand) =
-        match hand.Cards with
+        match hand with
         | RoyalFlush -> "Royal Flush"
         | StraightFlush -> "Straight Flush"
         | FourOfAKind -> "Four of a Kind"
@@ -231,7 +231,7 @@ module PokerHand =
 
     /// Compare two hands, the first of which can Win, Draw or Lose against the second.
     let CompareHands (hand1 : Hand) (hand2 : Hand) =
-        match hand1.Cards, hand2.Cards with
+        match hand1, hand2 with
 
         | RoyalFlush, RoyalFlush ->
             raise (ArgumentException("Impossible combination: two Royal Flushes"))
