@@ -310,6 +310,19 @@ module PokerHand =
     type Showdown = Winner of HandIndex:int | Drawers of HandIndexes:int[]
         with
         static member FromHands (hands : Hand[]) =
+
+            // Get the indexes of all outcomes where the outcome
+            // of a given type occurs a given number of times.
+            let OutcomesHavingCount count outcomeType outcomes =
+                outcomes
+                |> Seq.filter (fun (_, ocs) -> let hits = ocs
+                                                          |> Seq.map (fun (_, oc) -> oc)
+                                                          |> Seq.filter (fun o -> o = outcomeType)
+                                                          |> Seq.length
+                                               hits = count          
+                              )
+                |> Seq.map fst
+
             let handCount = hands.Length
             if handCount < 2 then
                 raise (ArgumentException("Must have at least two hands"))
@@ -322,30 +335,16 @@ module PokerHand =
                                         let j, h2 = hand2
                                         if i <> j then
                                             yield i, CompareHands h1 h2            
-                           } |> Seq.groupBy (fun (i, outcome) -> i)
+                           } |> Seq.groupBy (fun (i, _) -> i)
 
             // An outright-winning hand is one which beats all other hands:
             let winsNeeded = handCount - 1
-            let winsAll = outcomes
-                          |> Seq.filter (fun (_, ocs) -> let wins = ocs
-                                                                    |> Seq.map (fun (i, oc) -> oc)
-                                                                    |> Seq.filter (fun o -> o = Win)
-                                                                    |> Seq.length
-                                                         wins = winsNeeded           
-                                        )
-                          |> Seq.map fst
-            if not (Seq.isEmpty winsAll) then
-                Winner (winsAll |> Seq.nth 0)
+            let winners = outcomes |> OutcomesHavingCount winsNeeded Win 
+            if not (Seq.isEmpty winners) then
+                Winner (winners |> Seq.nth 0)
             else
                 // If no hand wins outright, it must have been a draw, and the hands which share the win are
                 // those which have no defeats:
-                let drawers = outcomes
-                              |> Seq.filter (fun (_, ocs) -> let defeats = ocs
-                                                                           |> Seq.map (fun (i, oc) -> oc)
-                                                                           |> Seq.filter (fun o -> o = Lose)
-                                                                           |> Seq.length
-                                                             defeats = 0           
-                                            )
-                              |> Seq.map fst
+                let drawers =  outcomes |> OutcomesHavingCount 0 Lose
                 Drawers (drawers |> Array.ofSeq)
 
