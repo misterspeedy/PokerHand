@@ -54,6 +54,7 @@
     <Compile Include="PokerHand.Tests.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="PokerHand.Tests.ProjectEuler.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

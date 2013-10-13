@@ -269,6 +269,10 @@ type ``Given various two-player rounds with an outright winner``() =
 
     [<TestCase("A♦ K♦ Q♦ J♦ 10♦", "K♥ J♥ 9♣ 8♦ 4♠", 0)>] 
     [<TestCase("K♥ J♥ 9♣ 8♦ 4♠", "A♦ K♦ Q♦ J♦ 10♦", 1)>] 
+
+    [<TestCase("Q♠ A♥ 3♥ K♠ 9♥", "2♠ J♠ J♥ 5♥ 2♥", 1)>] 
+
+    // QS AH 3H KS 9H 2S JS JH 5H 2H
     member t.``the right winner is correctly identified``(cs1 : string, cs2 : string, expectedIndex : int) =
         let hand1, hand2 = Hand.FromString(cs1), Hand.FromString(cs2)
         let actual = Showdown.FromHands [|hand1; hand2|]

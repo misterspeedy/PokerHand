@@ -3,8 +3,8 @@
 module Tuple =
     /// Does the equivalent to Seq.map, but from a tuple (2) to another tuple (2).
     let Map2 (f : 'T -> 'U) (inputs : ('T * 'T)) =
-        f (inputs |> fst),
-        f (inputs |> snd)
+        inputs |> fst |> f,
+        inputs |> snd |> f
 
 module PokerHand =
 
@@ -42,9 +42,9 @@ module PokerHand =
         static member FromString (s : String) =
             let rank, suit =
                 match s.Length with
-                | 2 -> s.Substring(0, 1), s.[1]
+                | 2 -> s.[0..0], s.[1]
                   // The 10 case has three characters
-                | 3 -> s.Substring(0, 2), s.[2]
+                | 3 -> s.[0..1], s.[2]
                 | _ -> raise (ArgumentException("Invalid card string: ", s))
             { Rank = Rank.FromString rank; Suit = Suit.FromChar suit}
 
@@ -97,6 +97,10 @@ module PokerHand =
         |> Seq.filter (fun diff -> diff <> 1)
         |> Seq.isEmpty
 
+    /// Sorts the array of ranks in descending order of sort value.
+    let SortRanks (ranks : Rank[]) =
+        ranks |> Array.sortBy (fun r -> 0 - r.SortValue)
+
     /// Returns the ranks and rank-counts of cards in the array:
     let RanksWithCount n cards =
         cards
@@ -104,9 +108,15 @@ module PokerHand =
         |> Seq.groupBy (fun card -> card.Rank)
         |> Seq.filter (fun (_, cards) -> (Seq.length cards) = n)
         |> Seq.map (fun (rank, _) -> rank)
-        |> Seq.sortBy (fun rank -> rank.SortValue)
         |> Array.ofSeq
+        |> SortRanks
         
+    /// Returns an array of ranks which appear only once each in the array.
+    let SoloRanks = RanksWithCount 1 
+
+    /// Returns an array of ranks which appear exactly twice each in the array.
+    let PairRanks = RanksWithCount 2
+
     /// Returns the rank counts (without the ranks themselves) of cards in the array.
     let RankCounts cards =
         cards
@@ -115,12 +125,6 @@ module PokerHand =
         |> Seq.map (fun (_, count) -> count)
         |> Seq.sortBy (fun count -> 0 - count) 
         |> Array.ofSeq
-
-    /// Returns an array of ranks which appear only once each in the array.
-    let SoloRanks = RanksWithCount 1 
-
-    /// Returns an array of ranks which appear exactly twice each in the array.
-    let PairRanks = RanksWithCount 2
 
     /// Returns the most common rank in the array.
     let CommonestRank cards =
@@ -139,9 +143,6 @@ module PokerHand =
         |> Seq.map (fun (_, count) -> count)
         |> Seq.sortBy (fun count -> 0 - count) 
         |> Array.ofSeq
-
-    let SortRanks (ranks : Rank[]) =
-        ranks |> Array.sortBy (fun r -> r.SortValue)
 
     // Partial active patterns for each of the recognized Poker hands.  These need to be
     // matched in order as some of the later cases will otherwise have false hits.
@@ -215,7 +216,8 @@ module PokerHand =
         | _ -> "High Card"
 
     /// Compare two equal length arrays of kickers until one of them wins.
-    let CompareKickers (kickers1 : Rank[]) (kickers2 : Rank[]) =
+    let CompareKickers (hand1 : Hand) (hand2 : Hand) =
+        let kickers1, kickers2 = (hand1.Cards, hand2.Cards) |> Tuple.Map2 SoloRanks
         if kickers1.Length <> kickers2.Length then
             raise (ArgumentException("Kicker arrays must be of equal length"))
         let k1, k2 = (kickers1, kickers2) |> Tuple.Map2 SortRanks
@@ -257,8 +259,7 @@ module PokerHand =
             // Although normally we would determine on highest rank card, tie breakers
             // may be needed right down to the lowest card so it's easiest to think 
             // of the flush as consisting entirely of kickers.
-            let kickers1, kickers2 = (hand1.Cards, hand2.Cards) |> Tuple.Map2 SoloRanks
-            CompareKickers kickers1 kickers2
+            CompareKickers hand1 hand2
         | Flush, _ -> Win
         | _, Flush -> Lose
 
@@ -276,7 +277,7 @@ module PokerHand =
 
         | TwoPair, TwoPair ->
             let ranks1, ranks2 = (hand1.Cards, hand2.Cards) 
-                                 |> Tuple.Map2 (PairRanks >> SortRanks)
+                                 |> Tuple.Map2 PairRanks
             if ranks1 <> ranks2 then 
                 let topRank1, topRank2 = ranks1.[0], ranks2.[0]
                 let topPairOutcome = Outcome.FromRanks topRank1 topRank2
@@ -286,8 +287,7 @@ module PokerHand =
                     let secondRank1, secondRank2 = ranks1.[1], ranks2.[1]
                     Outcome.FromRanks secondRank1 secondRank2
             else
-                let kickers1, kickers2 = (hand1.Cards, hand2.Cards) |> Tuple.Map2 SoloRanks
-                CompareKickers kickers1 kickers2
+                CompareKickers hand1 hand2
         | TwoPair, _ -> Win
         | _, TwoPair -> Lose
 
@@ -296,21 +296,18 @@ module PokerHand =
             if rank1 <> rank2 then 
                 Outcome.FromRanks rank1 rank2
             else
-                let kickers1, kickers2 = (hand1.Cards, hand2.Cards) |> Tuple.Map2 SoloRanks
-                CompareKickers kickers1 kickers2
+                CompareKickers hand1 hand2
         | OnePair, _ -> Win
         | _, OnePair -> Lose
 
         | _, _ ->
-            let kickers1, kickers2 = (hand1.Cards, hand2.Cards) |> Tuple.Map2 SoloRanks
-            CompareKickers kickers1 kickers2
+            CompareKickers hand1 hand2
 
     /// The outcome of comparing all the hands in a showdown - either
     /// a win, or two or more hands drawing
     type Showdown = Winner of HandIndex:int | Drawers of HandIndexes:int[]
         with
         static member FromHands (hands : Hand[]) =
-
             // Get the indexes of all outcomes where the outcome
             // of a given type occurs a given number of times.
             let OutcomesHavingCount count outcomeType outcomes =
